@@ -5,10 +5,10 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
     pull_policy: never
     volumes:
       - type: volume
@@ -18,7 +18,13 @@ services:
   configurator:
     command:
       - |
-        ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE"; bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        ls -1 apps > sites/apps.txt; 
+        bench set-config -g db_host $$DB_HOST; 
+        bench set-config -gp db_port $$DB_PORT; 
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE"; 
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; 
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; 
+        bench set-config -gp socketio_port $$SOCKETIO_PORT;
     depends_on:
       db:
         condition: service_healthy
@@ -38,10 +44,10 @@ services:
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
     pull_policy: never
     volumes:
       - type: volume
@@ -83,63 +89,27 @@ services:
     environment:
       BACKEND: backend:8000
       CLIENT_MAX_BODY_SIZE: 50m
-      FRAPPE_SITE_NAME_HEADER: myerp
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER}
       PROXY_READ_TIMEOUT: "120"
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.frontend-http.entrypoints: websecure
-      traefik.http.routers.frontend-http.rule: Host(erp-hrms-helpdesk-u26362.vm.elestio.app)
-      traefik.http.routers.frontend-http.tls.certresolver: main-resolver
-      traefik.http.services.frontend.loadbalancer.server.port: "8080"
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
     pull_policy: never
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
-  proxy:
-    command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.address=:443
-      - --certificatesResolvers.main-resolver.acme.httpChallenge=true
-      - --certificatesResolvers.main-resolver.acme.httpChallenge.entrypoint=web
-      - --certificatesResolvers.main-resolver.acme.email=mail@example.com
-      - --certificatesResolvers.main-resolver.acme.storage=/letsencrypt/acme.json
-    image: traefik:v2.11
-    networks:
-      default: null
-    ports:
-      - mode: ingress
-        target: 80
-        published: "80"
-        protocol: tcp
-      - mode: ingress
-        target: 443
-        published: "443"
-        protocol: tcp
-    volumes:
-      - type: volume
-        source: cert-data
-        target: /letsencrypt
-        volume: {}
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
-        read_only: true
-        bind:
-          create_host_path: true
   queue-long:
     command:
       - bench
@@ -150,10 +120,10 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
     pull_policy: never
     volumes:
       - type: volume
@@ -170,10 +140,10 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
     pull_policy: never
     volumes:
       - type: volume
@@ -206,10 +176,10 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
     pull_policy: never
     volumes:
       - type: volume
@@ -224,10 +194,10 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+    image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
     networks:
       default: null
-    platform: linux/amd64
+    platform: linux/arm64
     pull_policy: never
     volumes:
       - type: volume
@@ -238,8 +208,6 @@ networks:
   default:
     name: frappe_docker_default
 volumes:
-  cert-data:
-    name: frappe_docker_cert-data
   db-data:
     name: frappe_docker_db-data
   redis-cache-data:
@@ -252,12 +220,12 @@ x-backend-defaults:
   depends_on:
     configurator:
       condition: service_completed_successfully
-  image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+  image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
   pull_policy: never
   volumes:
     - sites:/home/frappe/frappe-bench/sites
 x-customizable-image:
-  image: ghcr.io/adarshkh2397/erp-helpdesk-hrms-image/apps:15.42.2
+  image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
   pull_policy: never
 x-depends-on-configurator:
   depends_on:
