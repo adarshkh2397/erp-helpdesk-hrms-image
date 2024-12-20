@@ -9,7 +9,6 @@ services:
     networks:
       default: null
     platform: linux/arm64
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -23,7 +22,7 @@ services:
         bench set-config -gp db_port $$DB_PORT; 
         bench set-config -g redis_cache "redis://$$REDIS_CACHE"; 
         bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; 
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; 
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port $$SOCKETIO_PORT;
     depends_on:
       db:
@@ -48,7 +47,6 @@ services:
     networks:
       default: null
     platform: linux/arm64
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -61,11 +59,11 @@ services:
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed
     environment:
-      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     healthcheck:
       test:
         - CMD-SHELL
-        - mysqladmin ping -h localhost --password=admin
+        - mysqladmin ping -h localhost --password=${DB_PASSWORD}
       interval: 1s
       retries: 20
     image: mariadb:10.6
@@ -104,7 +102,6 @@ services:
         target: 8080
         published: "8080"
         protocol: tcp
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -124,7 +121,6 @@ services:
     networks:
       default: null
     platform: linux/arm64
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -144,7 +140,6 @@ services:
     networks:
       default: null
     platform: linux/arm64
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -180,7 +175,6 @@ services:
     networks:
       default: null
     platform: linux/arm64
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -198,7 +192,6 @@ services:
     networks:
       default: null
     platform: linux/arm64
-    pull_policy: never
     volumes:
       - type: volume
         source: sites
@@ -221,12 +214,10 @@ x-backend-defaults:
     configurator:
       condition: service_completed_successfully
   image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
-  pull_policy: never
   volumes:
     - sites:/home/frappe/frappe-bench/sites
 x-customizable-image:
   image: ${APP_IMAGE}:${APP_TAG}@${APP_DIGEST}
-  pull_policy: never
 x-depends-on-configurator:
   depends_on:
     configurator:
